@@ -1,0 +1,98 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+dataset = pd.read_csv('Students.csv')
+#SAT score
+X = dataset.iloc[: ,  0:1].values
+#GPA
+Y = dataset.iloc[: , 1:2].values
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 1/4, random_state = 0  )
+
+# Fitting Simple Linear Regression to the Training set
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+
+# Predicting GPA based on SAT score
+y_pred = regressor.predict(X_train)
+
+
+R_square = regressor.score(X_train , y_train)
+print(R_square)
+
+from sklearn.metrics import mean_squared_error
+
+mse = mean_squared_error(y_train, y_pred)
+print("Mean Squared Error:", mse)
+
+# Visualising the Training set results
+plt.scatter(X_train, y_train, color = 'red')
+plt.plot(X_train, regressor.predict(X_train), color = 'blue')
+plt.title('GPA based on their SAT score(TRAIN)')
+plt.xlabel('SAT Score')
+plt.ylabel('GPA')
+plt.show()
+
+# Visualising the Test set results
+plt.scatter(X_test, y_test, color = 'red')
+plt.plot(X_test, regressor.predict(X_test), color = 'blue')
+plt.title('GPA based on their SAT score(TEST)')
+plt.xlabel('SAT Score')
+plt.ylabel('GPA')
+plt.show()
+
+#Model prameters
+#print(regressor.coef_)
+#print(regressor.intercept_)
+
+
+
+# Fitting Polynomial Regression to the dataset
+from sklearn.preprocessing import PolynomialFeatures
+poly_reg = PolynomialFeatures(degree = 5)
+X_train_poly = poly_reg.fit_transform(X_train)
+X_test_poly = poly_reg.fit_transform(X_test)
+lin_reg_2 = LinearRegression()
+lin_reg_2.fit(X_train_poly, y_train)
+
+R_square = lin_reg_2.score(X_train_poly, y_train)
+print(R_square)
+
+# Visualising the Polynomial Regression results
+plt.scatter(X_train, y_train, color = 'red')
+plt.plot(X_train, lin_reg_2.predict(X_train_poly), color = 'blue')
+plt.title('Polynomial Regression')
+plt.xlabel('SAT Score')
+plt.ylabel('GPT')
+plt.show()
+
+
+# Visualising the Polynomial Regression results (for higher resolution and smoother curve)
+X_grid = np.arange(min(X_train), max(X_train), 0.1)
+X_grid = X_grid.reshape((len(X_grid), 1))
+plt.scatter(X_train, y_train, color = 'red')
+plt.plot(X_grid, lin_reg_2.predict(poly_reg.fit_transform(X_grid)), color = 'blue')
+plt.title('Polynomial Regression(Train)')
+plt.xlabel('SAT Score')
+plt.ylabel('GPT')
+plt.show()
+
+
+X_grid = np.arange(min(X_test), max(X_test), 0.1)
+X_grid = X_grid.reshape((len(X_grid), 1))
+plt.scatter(X_test, y_test, color = 'red')
+plt.plot(X_grid, lin_reg_2.predict(poly_reg.fit_transform(X_grid)), color = 'blue')
+plt.title('Polynomial Regression(Test)')
+plt.xlabel('SAT Score')
+plt.ylabel('GPT')
+plt.show()
+
+# Predicting a new result with Polynomial Regression
+lin_reg_2.predict(poly_reg.fit_transform([[2100]]))
+
+y_pred = lin_reg_2.predict(X_train_poly)
+mse = mean_squared_error(y_train, y_pred)
+print("Mean Squared Error poly:", mse)
